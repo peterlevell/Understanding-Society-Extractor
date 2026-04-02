@@ -1,0 +1,9 @@
+# Stata swap files
+~*.stswp
+
+# Machine-specific Stata package tracker
+stata.trk
+
+# Machine-specific path configuration
+# Copy paths.do from paths_example.do and edit for your machine
+paths.do
