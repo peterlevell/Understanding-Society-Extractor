@@ -14,7 +14,7 @@ global data "I:\UnderstandingSociety\data"
 *location where you want to save the data (local drive)
 global datadir_saved ""
 
-sysdir set PLUS "I:\UnderstandingSociety\Extractor\v3_waves_1_15"
+sysdir set PLUS ""
 *check that this now in your adopath
 sysdir
 *Read the helpfile by typing help usextract
@@ -124,9 +124,9 @@ program define my_indiv_dataset_multiwave
 																			mindic								    /* Use extended missing values (.a, .b, etc) to explain why variable is missing */
 																		)
 
-																		keepdepkid								    /* Keep dependent children */
-																		keepindwoiv                                 /* Keep individuals without an interview in indresp */
-
+																		keepdepkid   /* Keep dependent children */
+																		keepindwoiv  /* Keep individuals without an interview in indresp */
+																		dropnohhiv 	 /*drop households where no one is interviewed*/
 
 																		replace								        /* Replace existing dataset if it exists */
 
@@ -140,8 +140,5 @@ my_indiv_dataset_multiwave
 
 
 use "$datadir_saved\usdataset_multiwave.dta", clear
-
 drop if hhrxwgt==.
-drop if nohh==1 
-
 save "$datadir_saved\usdataset_multiwave.dta", replace

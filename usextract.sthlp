@@ -30,6 +30,7 @@
 {syntab:Sample options}
 {synopt:{opt keepdepkid}}keep dependent children (dropped by default){p_end}
 {synopt:{opt keepindwoiv}}keep individuals without an interview in indresp{p_end}
+{synopt:{opt dropnohhiv}} drop households where no individual is interviewed {p_end}
 
 {syntab:Other options}
 {synopt:{opt uprate(string)}}uprate monetary variables to a common price level; see {help usextract##uprate:uprate}{p_end}

@@ -27,6 +27,7 @@ TYPICAL USE:  	See example usage.do for more complete examples
 					indrespoptions(...)
 					keepdepkid
 					keepindwoiv
+					dropnohhiv
 					b4prevint(name)
 					daysbetwint(name)
 					daysworked(name)
@@ -74,6 +75,7 @@ program define usextract
 								uprate(string)
                                 keepdepkid
                                 keepindwoiv
+								dropnohhiv
 								neednotexist
 								mindic
 								
@@ -90,7 +92,6 @@ program define usextract
 
 								check_option_syntax, optionspec(`optionspec') optionlist(`indrespoptions') ignore;
 	};
-
 
     * Tidy up compound intdate options;
     local intdate_syntax        "intdate(name)
@@ -194,7 +195,7 @@ program define usextract
             local `dataset'rawopt "rawvars(``dataset'rawopt')"
         }
 
-		qui us_indiv_dataset, wave(`wave') hhrespoptions(`hhrespoptions' `hhresprawopt') hhsampoptions(`hhsampoptions' `hhsamprawopt') indalloptions(`indalloptions' `indallrawopt') indrespoptions(`indrespoptions' `indresprawopt') `keepdepkid' `keepindwoiv' `neednotexist' `mindic'
+		qui us_indiv_dataset, wave(`wave') hhrespoptions(`hhrespoptions' `hhresprawopt') hhsampoptions(`hhsampoptions' `hhsamprawopt') indalloptions(`indalloptions' `indallrawopt') indrespoptions(`indrespoptions' `indresprawopt') `keepdepkid' `keepindwoiv' `dropnohhiv' `neednotexist' `mindic'
 		
 
         * Drop `w' prefix from all raw variables
@@ -311,6 +312,7 @@ program define usextract
         order hidp wave
         sort hidp wave
     }
+	compress
     qui save "`filename'", `replace'
 
 
@@ -331,6 +333,7 @@ program define us_indiv_dataset
                                 indrespoptions(string)
                                 keepdepkid
                                 keepindwoiv
+								dropnohhiv
 								neednotexist
 								mindic
                                 ];
@@ -354,7 +357,6 @@ program define us_indiv_dataset
     }
 
     if `"`indrespoptions'"' != "" {
-
         us_indresp_vars, wave(`wi') `indrespoptions' `neednotexist' `mindic'
         tempfile indrespdata
         qui save `indrespdata'
@@ -434,8 +436,7 @@ program define us_indiv_dataset
 *        assert _merge != 2
         di as text "hhdata and `=substr("`indivdata'",1,length("`indivdata'")-4)' merged"
 
-
-        if "`keepindwoiv'" == "keepindwoiv" {
+        if ("`keepindwoiv'" == "keepindwoiv") & ("`dropnohhiv'"!="dropnohhiv") {
             gen byte nohh = (_merge != 3)
             label variable nohh "No individuals in household interviewed"
             di as text "Households where noone interviewd NOT dropped"
@@ -453,7 +454,7 @@ program define us_indiv_dataset
                 }
             }
         }
-        else {
+        if ("`keepindwoiv'" != "keepindwoiv")|("`dropnohhiv'"=="dropnohhiv") {
             qui keep if _merge == 3
             di as text "Households where no individuals interviewed are dropped"
         }
@@ -467,7 +468,7 @@ program define us_indiv_dataset
 
     if (`"`indivdata'"' != "") {
 			
-        if "`keepindwoiv'" == "keepindwoiv" {    
+        if ("`keepindwoiv'" == "keepindwoiv") & ("`dropnohhiv'"!="dropnohhiv") {   
 		  replace pid = .r if nohh==1
 		  label define pid .r "No one in household interviewed", modify
         }
