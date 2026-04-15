@@ -262,15 +262,15 @@ program define usextract
     tempfile temp finaldata
     foreach wave of local waves {
 
-	local prevwave = `wave' - 1
+		local prevwave = `wave' - 1
 
-
-	* Append each year of data together
-      capture confirm file `finaldata'
-      if !_rc {
-           qui append using `finaldata'
-       }
-       qui save `finaldata', replace
+		qui use `wave`wave'data', clear	
+		* Append each year of data together
+		  capture confirm file `finaldata'
+		  if !_rc {
+			   qui append using `finaldata'
+		   }
+		   qui save `finaldata', replace
 
     }
 
