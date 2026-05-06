@@ -3765,7 +3765,7 @@ program define indresp_ilo_unemp, rclass
     local w = char(96+`wave')
 
     if "`whatvars'" == "whatvars" {
-        return local vars "`w'_jbstat `w'_jbhas `w'_jboff `w'_dvage `w'_julk4wk  `w'_sex `w'_ivfio"
+        return local vars "`w'_jbstat `w'_jbhas `w'_jboff `w'_dvage `w'_julk4wk  `w'_ivfio"
     }
     else {
 
@@ -3773,21 +3773,16 @@ program define indresp_ilo_unemp, rclass
 
 
         if (`wave'==1) {
-            qui gen byte `ilo_unemp' = 0 if `w'_sex==1 & (`w'_jbhas==1 | `w'_jboff==1|`w'_jboff==3) & !inlist(`w'_jbstat,7,9) & inrange(`w'_dvage,16,74)
-            qui replace  `ilo_unemp' = 0 if `w'_sex==2 & (`w'_jbhas==1 | `w'_jboff==1|`w'_jboff==3) & !inlist(`w'_jbstat,7,9) & inrange(`w'_dvage,16,74)
-            qui replace  `ilo_unemp' = 1 if `w'_sex==1 & `w'_jbhas==2 & `w'_jboff==2 & !inlist(`w'_jbstat,7,9) & inrange(`w'_dvage,16,74) & `w'_julk4wk==1
-            qui replace  `ilo_unemp' = 1 if `w'_sex==2 & `w'_jbhas==2 & `w'_jboff==2 & !inlist(`w'_jbstat,7,9) & inrange(`w'_dvage,16,74) & `w'_julk4wk==1
-            qui replace  `ilo_unemp' = 2 if `w'_sex==1 & (inlist(`w'_jbstat,7,9) | !inrange(`w'_dvage,16,74) | `w'_julk4wk==2)
-            qui replace  `ilo_unemp' = 2 if `w'_sex==2 & (inlist(`w'_jbstat,7,9) | !inrange(`w'_dvage,16,74) | `w'_julk4wk==2)
+            qui gen byte `ilo_unemp' = 0 if (`w'_jbhas==1 | `w'_jboff==1|`w'_jboff==3) & !inlist(`w'_jbstat,7,9) & inrange(`w'_dvage,16,74)
+            qui replace  `ilo_unemp' = 1 if `w'_jbhas==2 & `w'_jboff==2 & !inlist(`w'_jbstat,7,9) & inrange(`w'_dvage,16,74) & `w'_julk4wk==1
+            qui replace  `ilo_unemp' = 2 if (inlist(`w'_jbstat,7,9) | !inrange(`w'_dvage,16,74) | `w'_julk4wk==2)
+
         }
 
         if (`wave'>1) {
-            qui gen byte `ilo_unemp' = 0 if `w'_sex==1 & (`w'_jbhas==1 | `w'_jboff==1|`w'_jboff==3) & !inlist(`w'_jbstat,7,9) & inrange(`w'_dvage,16,74) & `w'_ivfio!=2
-            qui replace  `ilo_unemp' = 0 if `w'_sex==2 & (`w'_jbhas==1 | `w'_jboff==1|`w'_jboff==3) & !inlist(`w'_jbstat,7,9) & inrange(`w'_dvage,16,74) & `w'_ivfio!=2
-            qui replace  `ilo_unemp' = 1 if `w'_sex==1 & `w'_jbhas==2 & `w'_jboff==2 & !inlist(`w'_jbstat,7,9) & inrange(`w'_dvage,16,74) & `w'_julk4wk==1 & `w'_ivfio!=2
-            qui replace  `ilo_unemp' = 1 if `w'_sex==2 & `w'_jbhas==2 & `w'_jboff==2 & !inlist(`w'_jbstat,7,9) & inrange(`w'_dvage,16,74) & `w'_julk4wk==1 & `w'_ivfio!=2
-            qui replace  `ilo_unemp' = 2 if `w'_sex==1 & (inlist(`w'_jbstat,7,9) | !inrange(`w'_dvage,16,74) | `w'_julk4wk==2) & `w'_ivfio!=2
-            qui replace  `ilo_unemp' = 2 if `w'_sex==2 & (inlist(`w'_jbstat,7,9) | !inrange(`w'_dvage,16,74) | `w'_julk4wk==2) & `w'_ivfio!=2
+            qui gen byte `ilo_unemp' = 0 if (`w'_jbhas==1 | `w'_jboff==1|`w'_jboff==3) & !inlist(`w'_jbstat,7,9) & inrange(`w'_dvage,16,74) & `w'_ivfio!=2
+            qui replace  `ilo_unemp' = 1 if `w'_jbhas==2 & `w'_jboff==2 & !inlist(`w'_jbstat,7,9) & inrange(`w'_dvage,16,74) & `w'_julk4wk==1 & `w'_ivfio!=2
+            qui replace  `ilo_unemp' = 2 if (inlist(`w'_jbstat,7,9) | !inrange(`w'_dvage,16,74) | (`w'_jbhas==2 & `w'_jboff==2 & `w'_julk4wk==2)) & `w'_ivfio!=2
         }
 
         label define `ilo_unemp' 0 "Employed" 1 "Unemployed" 2 "Not in labour force"
@@ -3802,9 +3797,8 @@ program define indresp_ilo_unemp, rclass
         qui replace `ilo_unemp' = .d if inlist(`w'_jbstat,-1,-2,-3,-4,-7,-9) & `ilo_unemp' == .
         qui replace `ilo_unemp' = .e if inlist(`w'_julk4wk,-1,-2,-3,-4,-7,-8,-9)  & `ilo_unemp' == .
         qui replace `ilo_unemp' = .f if inlist(`w'_jbstat,1,2) & `w'_jbhas==2 & `w'_jboff==2 & `ilo_unemp' == .
-		qui replace `ilo_unemp' = .g if `w'_sex==-1|`w'_sex==-9 & `ilo_unemp' == .
 
-        label define `ilo_unemp' .a "Proxy respondent (Wave 2+)" .b "jbhas invalid" .c "jboff invalid" .d "jbstat invalid" .e "julk4 invalid" .f "Responses inconsistent" .g "Sex info missing", add
+        label define `ilo_unemp' .a "Proxy respondent (Wave 2+)" .b "jbhas invalid" .c "jboff invalid" .d "jbstat invalid" .e "julk4 invalid" .f "Responses inconsistent", add
         assert (`ilo_unemp' != .)
         }
 
